@@ -1198,3 +1198,92 @@ function parseTimeToMinutes_(value) {
   const twentyFourHourMatch = t.match(
     /^(\d{1,2}):(\d{2})$/
   );
+
+  if (twentyFourHourMatch) {
+    return (
+      Number(
+        twentyFourHourMatch[1]
+      ) * 60 +
+      Number(
+        twentyFourHourMatch[2]
+      )
+    );
+  }
+
+  /*
+   * Las horas inválidas quedan al final
+   * cuando se ordenan las rutas.
+   */
+  return 999999;
+}
+
+/**
+ * Convierte:
+ *
+ * 11:20 AM -> 11:20
+ * 12:00 PM -> 12:00
+ * 23:20    -> 11:20
+ *
+ * Se usa para buscar LINE_BY_TIME.
+ */
+function toHHMM_(value) {
+  const t =
+    cleanText_(value).toUpperCase();
+
+  const plainMatch = t.match(
+    /^(\d{1,2}):(\d{2})$/
+  );
+
+  if (plainMatch) {
+    let hour =
+      Number(plainMatch[1]);
+
+    const minute =
+      plainMatch[2];
+
+    if (hour === 0) {
+      hour = 12;
+    }
+
+    if (hour > 12) {
+      hour -= 12;
+    }
+
+    return `${hour}:${minute}`;
+  }
+
+  const amPmMatch = t.match(
+    /^(\d{1,2}):(\d{2})\s*(AM|PM)$/
+  );
+
+  if (!amPmMatch) {
+    return "";
+  }
+
+  return (
+    `${Number(amPmMatch[1])}:` +
+    `${amPmMatch[2]}`
+  );
+}
+
+/**
+ * Muestra el resultado sin usar SpreadsheetApp.getUi().
+ *
+ * Funciona mejor cuando el script se ejecuta
+ * desde triggers, botones o procesos automáticos.
+ */
+function mostrarMensaje_(ss, message) {
+  Logger.log(message);
+
+  try {
+    ss.toast(
+      message,
+      "Asignación de rutas y vans",
+      15
+    );
+  } catch (error) {
+    Logger.log(
+      `No se pudo mostrar el toast: ${error.message}`
+    );
+  }
+}
