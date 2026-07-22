@@ -540,11 +540,10 @@ function crearPoolsVacios_() {
 /**
  * Obtiene una van compatible.
  *
- * Prioridad:
- * 1. Size exacto requerido.
- * 2. EDV.
- * 3. XL.
- * 4. L.
+ * Prioridad especial:
+ * - CDV: CDV, XL, L.
+ * - XL: XL, L.
+ * - Otros sizes: size exacto, EDV, XL, L.
  *
  * No intenta dos veces el mismo size.
  */
@@ -552,12 +551,20 @@ function obtenerVanCompatible_(
   vansBySize,
   requiredSize
 ) {
-  const priority = [
-    requiredSize,
-    "EDV",
-    "XL",
-    "L"
-  ];
+  let priority;
+
+  if (requiredSize === "CDV") {
+    priority = ["CDV", "XL", "L"];
+  } else if (requiredSize === "XL") {
+    priority = ["XL", "L"];
+  } else {
+    priority = [
+      requiredSize,
+      "EDV",
+      "XL",
+      "L"
+    ];
+  }
 
   const checkedSizes = new Set();
 
